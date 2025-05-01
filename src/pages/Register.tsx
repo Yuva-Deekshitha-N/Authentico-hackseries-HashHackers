@@ -1,10 +1,11 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, AlertCircle } from 'lucide-react';
+import { Shield, AlertCircle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -13,6 +14,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -32,15 +34,21 @@ const Register = () => {
     }
     
     try {
-      const success = await register(name, email, password);
+      const success = await register(name, email, password, isAdmin ? 'admin' : 'customer');
       
       if (success) {
         toast({
           title: "Registration successful",
-          description: "Your account has been created",
+          description: `Your account has been created`,
           variant: "default",
         });
-        navigate('/');
+        
+        // Redirect admins to admin dashboard, others to home
+        if (isAdmin) {
+          navigate('src/app/admin/page.tsx');
+        } else {
+          navigate('/');
+        }
       } else {
         setError('Email is already in use');
       }
@@ -87,6 +95,7 @@ const Register = () => {
                   required
                 />
               </div>
+              
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email
@@ -100,6 +109,7 @@ const Register = () => {
                   required
                 />
               </div>
+              
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -112,6 +122,7 @@ const Register = () => {
                   required
                 />
               </div>
+              
               <div className="space-y-2">
                 <label htmlFor="confirmPassword" className="text-sm font-medium">
                   Confirm Password
@@ -123,6 +134,18 @@ const Register = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="admin" 
+                  checked={isAdmin}
+                  onCheckedChange={(checked) => setIsAdmin(checked as boolean)}
+                />
+                <Label htmlFor="admin" className="flex items-center">
+                  <Lock className="h-4 w-4 mr-2" />
+                  Register as Administrator
+                </Label>
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>
