@@ -45,7 +45,7 @@ const Register = () => {
         
         // Redirect admins to admin dashboard, others to home
         if (isAdmin) {
-          navigate('src/app/admin/page.tsx');
+          navigate('/admin'); // This will go to the dashboard
         } else {
           navigate('/');
         }

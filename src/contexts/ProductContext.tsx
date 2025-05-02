@@ -56,7 +56,36 @@ const mockProducts: Product[] = [
     image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa',
     description: 'Designer handbag made with premium materials',
     category: 'Fashion',
+  },
+  {
+    id: '4',
+    serialId: '38158/E2TE01888',
+    name: 'Redmi 11 pro max +5G',
+    manufacturer: 'Bajaj Electronics',
+    productOrigin: 'India',
+    manufactureDate: '2023-03-10',
+    seller: 'Vajra Electronics',
+    blockchainVerified: true,
+    image: 'https://i01.appmifile.com/webfile/globalimg/products/pc/redmi-note-11-pro-5g/overview15.png',
+    description: 'Best phone with many amazing features.',
+    category: 'Electronics',
+
+  },
+  {
+    id: '5',
+    serialId: 'MP29K087',
+    name: 'Lenovo Ideapad gaming 3 ',
+    manufacturer: 'Bajaj Electronics',
+    productOrigin: 'China',
+    manufactureDate: '2023-03-12',
+    seller: 'Vajra Electronics',
+    blockchainVerified: true,
+    image: 'https://cdn1.smartprix.com/rx-ith2ahQKR-w1200-h1200/th2ahQKR.jpg',
+    description: 'Best Gaming laptop with many amazing features.',
+    category: 'Electronics',
+
   }
+
 ];
 
 const mockReports: Report[] = [
