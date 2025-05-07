@@ -1,166 +1,177 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, AlertCircle, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Logo } from "@/components/ui/logo";
+import { Link } from "react-router-dom";
+import { login } from "@/utils/auth"; // mock login for now
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const { register } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    studentId: "",
+    program: "",
+    year: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-    
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      const success = await register(name, email, password, isAdmin ? 'admin' : 'customer');
-      
-      if (success) {
-        toast({
-          title: "Registration successful",
-          description: `Your account has been created`,
-          variant: "default",
-        });
-        
-        // Redirect admins to admin dashboard, others to home
-        if (isAdmin) {
-          navigate('/admin'); // This will go to the dashboard
-        } else {
-          navigate('/');
-        }
-      } else {
-        setError('Email is already in use');
-      }
-    } catch (error) {
-      setError('An error occurred. Please try again.');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
   };
 
+  const handleSelectChange = (id: string, value: string) => {
+    setForm({ ...form, [id]: value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    // Basic validation
+    if (
+      !form.firstName ||
+      !form.lastName ||
+      !form.email ||
+      !form.studentId ||
+      !form.program ||
+      !form.year ||
+      !form.password ||
+      !form.confirmPassword
+    ) {
+      setError("All fields are required.");
+      return;
+    }
+  
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+  
+    // ✅ Save username to localStorage
+    const fullName = `${form.firstName} ${form.lastName}`;
+    localStorage.setItem("username", fullName);
+  
+    // ✅ Mock login and redirect
+    login(); 
+    navigate("/dashboard", { replace: true });
+  };
+  
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md">
-        <div className="flex justify-center mb-6">
-          <Shield className="h-12 w-12 text-algorand-blue" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+      <div className="max-w-md w-full">
+        <div className="mb-8 text-center">
+          <Logo className="mx-auto mb-6" />
+          <h1 className="text-2xl font-bold">Create your account</h1>
+          <p className="text-muted-foreground">Register to manage your certificates</p>
         </div>
-        
+
         <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
-            <CardDescription className="text-center">
-              Enter your details to create your account
-            </CardDescription>
+          <CardHeader>
+            <CardTitle>Sign Up</CardTitle>
+            <CardDescription>Enter your details to create an account</CardDescription>
           </CardHeader>
-          <CardContent>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4 flex items-start">
-                <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                <span>{error}</span>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First name</Label>
+                  <Input id="firstName" value={form.firstName} onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last name</Label>
+                  <Input id="lastName" value={form.lastName} onChange={handleChange} />
+                </div>
               </div>
-            )}
-            
-            <form onSubmit={handleRegister} className="space-y-4">
+
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">
-                  Name
-                </label>
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={form.email} onChange={handleChange} />
               </div>
-              
+
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <Label htmlFor="studentId">Student ID</Label>
+                <Input id="studentId" value={form.studentId} onChange={handleChange} />
               </div>
-              
+
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <Label htmlFor="program">Program</Label>
+                <Select onValueChange={(value) => handleSelectChange("program", value)}>
+                  <SelectTrigger id="program">
+                    <SelectValue placeholder="Select program" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="btech-cse">B.Tech Computer Science</SelectItem>
+                    <SelectItem value="btech-ece">B.Tech Electronics</SelectItem>
+                    <SelectItem value="btech-eee">B.Tech Electrical</SelectItem>
+                    <SelectItem value="btech-civil">B.Tech Civil</SelectItem>
+                    <SelectItem value="btech-mech">B.Tech Mechanical</SelectItem>
+                    <SelectItem value="mtech">M.Tech Programs</SelectItem>
+                    <SelectItem value="mba">MBA</SelectItem>
+                    <SelectItem value="mca">MCA</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              
+
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium">
-                  Confirm Password
-                </label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
+                <Label htmlFor="year">Year of Study</Label>
+                <Select onValueChange={(value) => handleSelectChange("year", value)}>
+                  <SelectTrigger id="year">
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1st Year</SelectItem>
+                    <SelectItem value="2">2nd Year</SelectItem>
+                    <SelectItem value="3">3rd Year</SelectItem>
+                    <SelectItem value="4">4th Year</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="admin" 
-                  checked={isAdmin}
-                  onCheckedChange={(checked) => setIsAdmin(checked as boolean)}
-                />
-                <Label htmlFor="admin" className="flex items-center">
-                  <Lock className="h-4 w-4 mr-2" />
-                  Register as Administrator
-                </Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" value={form.password} onChange={handleChange} />
               </div>
-              
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create account'}
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input id="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} />
+              </div>
+
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+            </CardContent>
+            <CardFooter className="flex flex-col">
+              <Button className="w-full bg-maroon-700 hover:bg-maroon-800" type="submit">
+                Create Account
               </Button>
-            </form>
-          </CardContent>
-          <CardFooter>
-            <p className="text-sm text-center text-gray-500 w-full">
-              Already have an account?{' '}
-              <Link to="/login" className="text-algorand-blue hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </CardFooter>
+              <p className="mt-4 text-center text-sm">
+                Already have an account?{" "}
+                <Link to="/login" className="text-blue-600 hover:underline">
+                  Sign in
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </div>
